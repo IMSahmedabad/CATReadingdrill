@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading Drill — CAT 27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F5EF;
+    --paper-raised: #FFFFFF;
+    --ink: #1B2438;
+    --ink-soft: #4A5468;
+    --navy: #1F3864;
+    --navy-soft: #33507F;
+    --gold: #C9A84C;
+    --gold-deep: #A9843A;
+    --line: #DFDACB;
+    --line-soft: #EBE7DA;
+    --good: #3F7052;
+    --good-bg: #E7F0E9;
+    --warn: #A9752B;
+    --warn-bg: #F5EAD4;
+    --crit: #B14A38;
+    --crit-bg: #F6E2DD;
+    --shadow: 0 1px 2px rgba(27,36,56,0.06), 0 6px 20px rgba(27,36,56,0.06);
+    --radius: 14px;
+    font-family: "Archivo", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12192B; --paper-raised: #1A2338; --ink: #EDEBE0; --ink-soft: #A9B0C4;
+      --navy: #8FAAD9; --navy-soft: #6C89BC; --gold: #DCC077; --gold-deep: #E8D08C;
+      --line: #303D5C; --line-soft: #232D46;
+      --good: #7EC79A; --good-bg: #1C3226; --warn: #DCB05B; --warn-bg: #362A16;
+      --crit: #E28B75; --crit-bg: #3A211C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12192B; --paper-raised: #1A2338; --ink: #EDEBE0; --ink-soft: #A9B0C4;
+    --navy: #8FAAD9; --navy-soft: #6C89BC; --gold: #DCC077; --gold-deep: #E8D08C;
+    --line: #303D5C; --line-soft: #232D46;
+    --good: #7EC79A; --good-bg: #1C3226; --warn: #DCB05B; --warn-bg: #362A16;
+    --crit: #E28B75; --crit-bg: #3A211C;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); padding-inline: 20px; padding-block: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  header.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .brand { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-deep); }
+  h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(28px, 5vw, 38px); margin: 4px 0 2px; color: var(--navy); text-wrap: balance; }
+  .sub { color: var(--ink-soft); font-size: 14.5px; margin-bottom: 22px; }
+  .brand-link { color: inherit; text-decoration: none; }
+
+  .identity-summary {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13.5px; color: var(--ink-soft); margin-bottom: 14px;
+  }
+  .identity-summary strong { color: var(--navy); font-weight: 600; }
+
+  .card { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 22px; margin-bottom: 18px; }
+
+  .field-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .field { flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); }
+  select, input[type=text], textarea {
+    font-family: "Archivo", sans-serif; font-size: 15px; padding: 10px 12px;
+    border-radius: 9px; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  }
+  select:focus, input:focus, textarea:focus { outline: 2px solid var(--navy-soft); outline-offset: 1px; }
+  textarea { font-family: "Fraunces", serif; font-size: 16px; resize: vertical; min-height: 64px; line-height: 1.4; }
+
+  .link-btn {
+    background: none; border: none; padding: 8px 0 0; font-family: "Archivo", sans-serif;
+    font-size: 12.5px; color: var(--navy-soft); text-decoration: underline; cursor: pointer;
+  }
+  .manual-panel { margin-top: 12px; padding-top: 14px; border-top: 1px dashed var(--line); }
+  .manual-hint { font-size: 12px; color: var(--ink-soft); margin: 0 0 10px; }
+
+  .article-head { margin-bottom: 6px; }
+  .article-title { font-family: "Fraunces", serif; font-weight: 600; font-size: 20px; color: var(--navy); margin: 0 0 2px; }
+  .article-source { font-size: 13px; color: var(--ink-soft); }
+  .example-flag {
+    display: inline-block; margin-left: 8px; font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-deep);
+    background: var(--warn-bg); padding: 2px 8px; border-radius: 999px; vertical-align: middle;
+  }
+
+  .para-card { border-top: 1px solid var(--line-soft); padding-top: 18px; margin-top: 18px; }
+  .para-card:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .para-num {
+    display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px;
+    border-radius: 50%; background: var(--navy); color: #fff; font-size: 12px; font-weight: 700;
+    font-family: "Archivo", sans-serif; margin-right: 8px; flex-shrink: 0;
+  }
+  .para-text { font-family: "Fraunces", serif; font-size: 16.5px; line-height: 1.6; color: var(--ink); margin: 6px 0 14px; padding-left: 32px; }
+  .para-label { display: flex; align-items: center; margin-bottom: 4px; }
+  .para-label-text { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-soft); }
+
+  .answer-box { padding-left: 32px; }
+  .charcount { font-size: 11.5px; color: var(--ink-soft); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+  .btn { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 14.5px; padding: 12px 22px; border-radius: 10px; border: none; cursor: pointer; background: var(--navy); color: #fff; }
+  .btn:disabled { opacity: 0.55; cursor: default; }
+  .btn-row { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+  .feedback-block { padding-left: 32px; margin-top: 14px; border-radius: 10px; }
+  .score-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .score-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .score-chip.good { background: var(--good-bg); color: var(--good); }
+  .score-chip.warn { background: var(--warn-bg); color: var(--warn); }
+  .score-chip.crit { background: var(--crit-bg); color: var(--crit); }
+  .feedback-text { font-size: 14px; line-height: 1.5; color: var(--ink); }
+
+  .status-line { font-size: 13px; color: var(--ink-soft); margin-top: 10px; }
+  .status-line.err { color: var(--crit); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <a class="brand-link" href="mentor.html" title=""><div class="brand">IMS Ahmedabad · CAT 27</div></a>
+      <h1>Reading Drill</h1>
+    </div>
+  </header>
+  <div class="sub">Five paragraphs a day. One line each: not the topic, not a detail — the point the author is making.</div>
+
+  <div class="card" id="step-identity">
+    <div class="field-row">
+      <div class="field">
+        <label for="sel-batch">Batch</label>
+        <select id="sel-batch"><option value="">Loading…</option></select>
+      </div>
+      <div class="field">
+        <label for="sel-student">Name</label>
+        <select id="sel-student"><option value="">Select batch first</option></select>
+      </div>
+    </div>
+    <button class="link-btn" id="btn-manual-toggle">Can't find your name?</button>
+
+    <div class="manual-panel" id="manual-panel" hidden>
+      <p class="manual-hint">Enter your details manually — this is used instead of the dropdowns above.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="m-pin">IMS PIN</label>
+          <input type="text" id="m-pin" placeholder="Your IMS PIN">
+        </div>
+        <div class="field">
+          <label for="m-batch">Batch</label>
+          <input type="text" id="m-batch" placeholder="e.g. CAT27 - 2703">
+        </div>
+        <div class="field">
+          <label for="m-name">Name</label>
+          <input type="text" id="m-name" placeholder="Your full name">
+        </div>
+      </div>
+      <button class="link-btn" id="btn-manual-cancel">Use the dropdowns instead</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-continue" disabled>Start today's drill</button>
+    </div>
+  </div>
+
+  <div id="step-drill" hidden>
+    <div class="identity-summary">
+      Practicing as <strong id="whoami"></strong>
+      <button class="link-btn" id="btn-change-identity" style="padding-top:0;">Change</button>
+    </div>
+
+    <div class="card" id="content-card">
+      <div class="article-head">
+        <p class="article-title" id="article-title">Loading today's set…</p>
+        <p class="article-source" id="article-source"></p>
+      </div>
+      <div id="paragraph-list"></div>
+      <div class="btn-row">
+        <button class="btn" id="btn-submit" disabled>Check with AI</button>
+      </div>
+      <div class="status-line" id="student-status"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---------------------------------------------------------------
+// CONFIG — paste your deployed Apps Script Web App URL below.
+// The same backend also serves mentor.html.
+// ---------------------------------------------------------------
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzsmjB0QXtow2EhEo6xV0JChXqmJUU48d6pp7BgxuRBYludOGrTEnAeWQ7yRtqsjCz/exec";
+
+const EXAMPLE_CONTENT = {
+  isExample: true,
+  date: null,
+  title: "Why boredom is a skill, not a symptom",
+  source: "Example set — replace this from the Mentor portal",
+  paragraphs: [
+    "For most of human history, empty time was simply time: a walk with nothing to listen to, a queue with nothing to read, an evening with nothing scheduled. The mind, denied a task, did not stop; it wandered, and wandering is where most people report their best unbidden ideas arriving. What has changed is not boredom itself but our tolerance for it — the reflex to fill every idle second closes off exactly the kind of unstructured thought that boredom used to supply for free.",
+    "Psychologists who study mind-wandering distinguish it sharply from distraction. Distraction pulls attention toward something else external; mind-wandering lets attention drift with no external pull at all, and it is this drift — not focus, and not stimulation — that seems to support the loosest, most associative kind of thinking. Take the drift away, and you have not removed a nuisance; you have removed a cognitive process that was doing real work.",
+    "None of this is an argument against concentration, which remains the sharper and more reliable tool for most tasks. It is an argument against treating every unfilled minute as a problem to be solved with a screen. A skill practiced only in its absence eventually atrophies, and the capacity to sit with nothing to do, unremarkable as it sounds, may be one of those skills."
+  ]
+};
+
+let state = { roster: {}, content: null, manualMode: false };
+
+function apiGet(action, params) {
+  const qs = new URLSearchParams({ action, ...(params || {}) }).toString();
+  return fetch(`${APPS_SCRIPT_URL}?${qs}`).then(r => r.json());
+}
+function apiPost(action, payload) {
+  return fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action, ...payload })
+  }).then(r => r.json());
+}
+function backendConfigured() { return APPS_SCRIPT_URL && !APPS_SCRIPT_URL.startsWith("PASTE_"); }
+function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c])); }
+
+// ---------- Identity: dropdowns ----------
+const selBatch = document.getElementById("sel-batch");
+const selStudent = document.getElementById("sel-student");
+
+function populateBatches(roster) {
+  const names = Object.keys(roster);
+  selBatch.innerHTML = names.length
+    ? '<option value="">Choose batch…</option>' + names.map(b => `<option value="${b}">${b}</option>`).join("")
+    : '<option value="">No roster yet</option>';
+}
+selBatch.addEventListener("change", () => {
+  const students = state.roster[selBatch.value] || [];
+  selStudent.innerHTML = students.length
+    ? '<option value="">Choose name…</option>' + students.map(n => `<option value="${n}">${n}</option>`).join("")
+    : '<option value="">No students in this batch</option>';
+  updateContinueEnabled();
+});
+selStudent.addEventListener("change", updateContinueEnabled);
+
+// ---------- Identity: manual fallback ----------
+const manualPanel = document.getElementById("manual-panel");
+document.getElementById("btn-manual-toggle").addEventListener("click", () => {
+  state.manualMode = true;
+  manualPanel.hidden = false;
+  selBatch.disabled = true;
+  selStudent.disabled = true;
+  updateContinueEnabled();
+});
+document.getElementById("btn-manual-cancel").addEventListener("click", () => {
+  state.manualMode = false;
+  manualPanel.hidden = true;
+  selBatch.disabled = false;
+  selStudent.disabled = false;
+  updateContinueEnabled();
+});
+["m-pin", "m-batch", "m-name"].forEach(id => document.getElementById(id).addEventListener("input", updateContinueEnabled));
+
+function getIdentity() {
+  if (state.manualMode) {
+    return {
+      batch: document.getElementById("m-batch").value.trim(),
+      student: document.getElementById("m-name").value.trim(),
+      pin: document.getElementById("m-pin").value.trim()
+    };
+  }
+  return { batch: selBatch.value, student: selStudent.value, pin: "" };
+}
+function identityComplete() {
+  const id = getIdentity();
+  if (state.manualMode) return !!(id.pin && id.batch && id.student);
+  return !!(id.batch && id.student);
+}
+function updateContinueEnabled() {
+  document.getElementById("btn-continue").disabled = !identityComplete();
+}
+function updateSubmitEnabled() {
+  document.getElementById("btn-submit").disabled = !state.content;
+}
+
+// ---------- Step transition ----------
+document.getElementById("btn-continue").addEventListener("click", () => {
+  const id = getIdentity();
+  document.getElementById("whoami").textContent = `${id.student} · ${id.batch}`;
+  document.getElementById("step-identity").hidden = true;
+  document.getElementById("step-drill").hidden = false;
+  updateSubmitEnabled();
+});
+document.getElementById("btn-change-identity").addEventListener("click", () => {
+  document.getElementById("step-drill").hidden = true;
+  document.getElementById("step-identity").hidden = false;
+});
+
+// ---------- Today's content ----------
+function renderContent(content) {
+  state.content = content;
+  document.getElementById("article-title").innerHTML =
+    content.title + (content.isExample ? '<span class="example-flag">Example</span>' : "");
+  document.getElementById("article-source").textContent = content.source || "";
+
+  const list = document.getElementById("paragraph-list");
+  list.innerHTML = content.paragraphs.map((p, i) => `
+    <div class="para-card" data-idx="${i}">
+      <div class="para-label"><span class="para-num">${i + 1}</span><span class="para-label-text">Paragraph ${i + 1}</span></div>
+      <p class="para-text">${escapeHtml(p)}</p>
+      <div class="answer-box">
+        <textarea class="answer-input" data-idx="${i}" placeholder="Main idea in one line — the author's point, not a summary…"></textarea>
+        <div class="charcount"><span class="cc-count">0</span> / 140</div>
+      </div>
+      <div class="feedback-block" id="feedback-${i}" hidden></div>
+    </div>
+  `).join("");
+
+  list.querySelectorAll(".answer-input").forEach(ta => {
+    ta.addEventListener("input", () => { ta.closest(".para-card").querySelector(".cc-count").textContent = ta.value.length; });
+  });
+  updateSubmitEnabled();
+}
+
+// ---------- Submit for grading ----------
+document.getElementById("btn-submit").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-submit");
+  const statusEl = document.getElementById("student-status");
+  const identity = getIdentity();
+  const answers = Array.from(document.querySelectorAll(".answer-input")).map(ta => ({
+    index: Number(ta.dataset.idx), answer: ta.value.trim()
+  }));
+  if (answers.some(a => !a.answer)) {
+    statusEl.textContent = "Write a line for every paragraph before checking.";
+    statusEl.className = "status-line err";
+    return;
+  }
+  if (!backendConfigured()) {
+    statusEl.textContent = "AI checking isn't connected yet — the Apps Script URL hasn't been set in this page.";
+    statusEl.className = "status-line err";
+    return;
+  }
+  btn.disabled = true;
+  statusEl.className = "status-line";
+  statusEl.textContent = "Checking with AI — this can take up to a minute for five paragraphs…";
+  try {
+    const res = await apiPost("submit", {
+      date: state.content.date, batch: identity.batch, student: identity.student, pin: identity.pin,
+      paragraphs: state.content.paragraphs, answers
+    });
+    if (res.error) throw new Error(res.error);
+    res.results.forEach(r => renderFeedback(r));
+    statusEl.textContent = "Done. Feedback is below each paragraph.";
+  } catch (err) {
+    statusEl.textContent = "Couldn't get AI feedback: " + err.message;
+    statusEl.className = "status-line err";
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+function scoreClass(n) { return n >= 4 ? "good" : n >= 3 ? "warn" : "crit"; }
+function renderFeedback(r) {
+  const el = document.getElementById(`feedback-${r.index}`);
+  el.hidden = false;
+  el.innerHTML = `
+    <div class="score-row">
+      <span class="score-chip ${scoreClass(r.accuracy)}">Accuracy ${r.accuracy}/5</span>
+      <span class="score-chip ${scoreClass(r.scope)}">Scope ${r.scope}/5</span>
+      <span class="score-chip ${scoreClass(r.conciseness)}">Concise ${r.conciseness}/5</span>
+      <span class="score-chip ${scoreClass(r.ownWords)}">Own words ${r.ownWords}/5</span>
+    </div>
+    <div class="feedback-text">${escapeHtml(r.feedback)}</div>
+  `;
+}
+
+// ---------- Boot ----------
+async function boot() {
+  if (!backendConfigured()) {
+    populateBatches({ "CAT27 – Demo Batch": ["Demo Student 1", "Demo Student 2"] });
+    renderContent({ ...EXAMPLE_CONTENT, date: new Date().toISOString().slice(0, 10) });
+    document.getElementById("student-status").textContent =
+      "This is a preview with example content. Connect the Apps Script backend to go live.";
+    return;
+  }
+  try {
+    const [rosterRes, contentRes] = await Promise.all([apiGet("getRoster"), apiGet("getToday")]);
+    state.roster = rosterRes.roster || {};
+    populateBatches(state.roster);
+    if (contentRes.content) {
+      renderContent(contentRes.content);
+    } else {
+      renderContent({ ...EXAMPLE_CONTENT, date: new Date().toISOString().slice(0, 10) });
+      document.getElementById("student-status").textContent =
+        "No set has been added for today yet — showing an example. Ask your mentor to add today's paragraphs.";
+    }
+  } catch (err) {
+    document.getElementById("student-status").textContent = "Couldn't reach the backend: " + err.message;
+    document.getElementById("student-status").className = "status-line err";
+  }
+}
+boot();
+</script>
+</body>
+</html>
