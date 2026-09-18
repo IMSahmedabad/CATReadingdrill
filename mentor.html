@@ -104,7 +104,7 @@
     </div>
     <a class="back-link" href="index.html">← Reading Drill</a>
   </header>
-  <div class="sub">Upload each day's paragraphs and review how the batch is doing.</div>
+  <div class="sub">Upload each day's paragraphs and review how students are doing.</div>
 
   <div class="subtabs">
     <button class="subtab-btn active" data-sub="content">Upload Articles</button>
@@ -131,9 +131,9 @@
         </div>
       </div>
       <div class="field" style="margin-top:12px;">
-        <label for="m-paras">Paragraphs (paste 4–5, separated by a blank line)</label>
-        <textarea id="m-paras" rows="10" placeholder="Paste the first paragraph here.&#10;&#10;Then a blank line, then the second paragraph.&#10;&#10;…and so on."></textarea>
-        <div class="hint">Split on blank lines. Anything after the 5th paragraph is ignored.</div>
+        <label for="m-paras">Paragraphs (separate each with a blank line)</label>
+        <textarea id="m-paras" rows="16" placeholder="Paste the first paragraph here.&#10;&#10;Then a blank line, then the second paragraph.&#10;&#10;…and so on. Any number of paragraphs — 3, 5, 15, whatever the article needs."></textarea>
+        <div class="hint">Split on blank lines — no limit on how many. A typical set is 5-15 paragraphs, however many the article has.</div>
       </div>
       <div class="btn-row">
         <button class="btn" id="btn-save-content">Save today's set</button>
@@ -151,8 +151,15 @@
           <input type="date" id="d-date">
         </div>
         <div class="field">
-          <label for="d-batch">Batch</label>
-          <select id="d-batch"><option value="">All batches</option></select>
+          <label for="d-center">Center</label>
+          <select id="d-center">
+            <option value="">All centers</option>
+            <option value="Ahmedabad">Ahmedabad</option>
+            <option value="Vadodara">Vadodara</option>
+            <option value="Surat">Surat</option>
+            <option value="Gandhinagar">Gandhinagar</option>
+            <option value="Online">Online</option>
+          </select>
         </div>
         <div class="field" style="flex: 0 0 auto; align-self: flex-end;">
           <button class="btn secondary" id="btn-load-dash">Load</button>
@@ -162,7 +169,7 @@
       <div class="table-wrap" style="margin-top:12px;">
         <table id="dash-table">
           <thead>
-            <tr><th>Student</th><th>Batch</th><th>Para</th><th>Accuracy</th><th>Scope</th><th>Concise</th><th>Own words</th><th>Feedback</th></tr>
+            <tr><th>Student</th><th>Center</th><th>Para</th><th>Score</th><th>Their answer</th><th>Main idea</th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -174,7 +181,7 @@
 </div>
 
 <script>
-// Same backend as index.html — paste the same Apps Script Web App URL.
+// Same backend as index.html.
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzsmjB0QXtow2EhEo6xV0JChXqmJUU48d6pp7BgxuRBYludOGrTEnAeWQ7yRtqsjCz/exec";
 
 function apiGet(action, params) {
@@ -192,10 +199,6 @@ function backendConfigured() { return APPS_SCRIPT_URL && !APPS_SCRIPT_URL.starts
 function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c])); }
 
 // ---------- Password gate ----------
-// This checks the password against the backend (Script Property
-// MENTOR_PASSWORD), so the password itself never sits in this page's
-// source. It's a soft gate for keeping casual visitors out, not a real
-// login system. sessionStorage only remembers it for this browser tab.
 function storedPassword() { try { return sessionStorage.getItem("readingDrillMentorPw") || ""; } catch (e) { return ""; } }
 function setStoredPassword(pw) { try { sessionStorage.setItem("readingDrillMentorPw", pw); } catch (e) {} }
 
@@ -214,7 +217,6 @@ async function tryEnter(pw) {
       setStoredPassword(pw);
       document.getElementById("gate").hidden = true;
       document.getElementById("portal").hidden = false;
-      boot();
     } else {
       statusEl.textContent = "Incorrect password.";
       statusEl.className = "status-line err";
@@ -226,9 +228,9 @@ async function tryEnter(pw) {
 }
 document.getElementById("gate-btn").addEventListener("click", () => tryEnter(document.getElementById("gate-pw").value));
 document.getElementById("gate-pw").addEventListener("keydown", (e) => { if (e.key === "Enter") tryEnter(e.target.value); });
-// A password already entered earlier this tab session skips the gate.
 if (storedPassword()) tryEnter(storedPassword());
 
+// ---------- Subtabs ----------
 document.querySelectorAll(".subtab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".subtab-btn").forEach(b => b.classList.remove("active"));
@@ -238,15 +240,16 @@ document.querySelectorAll(".subtab-btn").forEach(btn => {
   });
 });
 
+// ---------- Upload articles ----------
 document.getElementById("m-date").valueAsDate = new Date();
 document.getElementById("btn-save-content").addEventListener("click", async () => {
   const statusEl = document.getElementById("mentor-content-status");
   const date = document.getElementById("m-date").value;
   const title = document.getElementById("m-title").value.trim();
   const source = document.getElementById("m-source").value.trim();
-  const paras = document.getElementById("m-paras").value.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean).slice(0, 5);
-  if (!date || !title || paras.length < 3) {
-    statusEl.textContent = "Add a date, a title, and at least 3 paragraphs.";
+  const paras = document.getElementById("m-paras").value.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  if (!date || !title || paras.length < 1) {
+    statusEl.textContent = "Add a date, a title, and at least 1 paragraph.";
     statusEl.className = "status-line err";
     return;
   }
@@ -267,11 +270,12 @@ document.getElementById("btn-save-content").addEventListener("click", async () =
   }
 });
 
+// ---------- Dashboard ----------
 document.getElementById("d-date").valueAsDate = new Date();
 document.getElementById("btn-load-dash").addEventListener("click", async () => {
   const statusEl = document.getElementById("dash-status");
   const date = document.getElementById("d-date").value;
-  const batch = document.getElementById("d-batch").value;
+  const center = document.getElementById("d-center").value;
   if (!backendConfigured()) {
     statusEl.textContent = "Apps Script URL not set yet.";
     statusEl.className = "status-line err";
@@ -280,25 +284,23 @@ document.getElementById("btn-load-dash").addEventListener("click", async () => {
   statusEl.className = "status-line";
   statusEl.textContent = "Loading…";
   try {
-    const res = await apiGet("getSubmissions", { date, batch, password: storedPassword() });
+    const res = await apiGet("getSubmissions", { date, center, password: storedPassword() });
     if (res.error) throw new Error(res.error);
     const rows = res.rows || [];
     document.querySelector("#dash-table tbody").innerHTML = rows.map(r => `
       <tr>
         <td>${escapeHtml(r.student)}</td>
-        <td>${escapeHtml(r.batch)}</td>
+        <td>${escapeHtml(r.center)}</td>
         <td class="num">${r.paraIndex + 1}</td>
-        <td class="num">${r.accuracy}</td>
-        <td class="num">${r.scope}</td>
-        <td class="num">${r.conciseness}</td>
-        <td class="num">${r.ownWords}</td>
-        <td>${escapeHtml(r.feedback || "")}</td>
+        <td class="num">${r.score}/10</td>
+        <td>${escapeHtml(r.answer || "")}</td>
+        <td>${escapeHtml(r.correctSummary || "")}</td>
       </tr>
     `).join("");
     const uniqueStudents = new Set(rows.map(r => r.student)).size;
-    const avg = k => rows.length ? (rows.reduce((s, r) => s + Number(r[k] || 0), 0) / rows.length).toFixed(1) : "—";
+    const avgScore = rows.length ? (rows.reduce((s, r) => s + Number(r.score || 0), 0) / rows.length).toFixed(1) : "—";
     document.getElementById("dash-summary").textContent = rows.length
-      ? `${uniqueStudents} student(s), ${rows.length} paragraph attempts — avg accuracy ${avg("accuracy")}, scope ${avg("scope")}, conciseness ${avg("conciseness")}, own words ${avg("ownWords")}.`
+      ? `${uniqueStudents} student(s), ${rows.length} paragraph attempts — average score ${avgScore}/10.`
       : "No submissions for this filter yet.";
     statusEl.textContent = "";
   } catch (err) {
@@ -306,17 +308,6 @@ document.getElementById("btn-load-dash").addEventListener("click", async () => {
     statusEl.className = "status-line err";
   }
 });
-
-async function boot() {
-  if (!backendConfigured()) return;
-  try {
-    const rosterRes = await apiGet("getRoster");
-    const roster = rosterRes.roster || {};
-    document.getElementById("d-batch").innerHTML = '<option value="">All batches</option>' +
-      Object.keys(roster).map(b => `<option value="${b}">${b}</option>`).join("");
-  } catch (err) { /* dashboard filter just stays empty */ }
-}
-// boot() runs once the gate is passed (see tryEnter above), not on page load.
 </script>
 </body>
 </html>
